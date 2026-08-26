@@ -1,4 +1,4 @@
-# Custody-Chain RL — NASA ASRS adapter
+# Custody-Chain RL 
 
 Slice of **Custody-Chain RL**: auditable offline policy learning from operational records. This folder is the NASA Aviation Safety Reporting System (ASRS) path — converting real pilot/controller prose into sealed custody episodes.
 
