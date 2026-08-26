@@ -11,8 +11,19 @@ __pycache__/
 .venv/
 venv/
 .env
+.pytest_cache/
 
 # Pipeline outputs
 data/
 *.jsonl
 asrs_bundle.json
+
+# Duplicate originals kept at repo root after packaging; the live copies
+# live under custody_chain/.
+/audit.py
+/certify.py
+/cli.py
+/learn.py
+/ledger.py
+/mimic.py
+/schema 2.py

@@ -9,13 +9,19 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
 from custody_chain.adapters import asrs                       # noqa: E402
 from custody_chain.extract import extraction_problems, mark_reviewed  # noqa: E402
 from custody_chain.schema import validate                     # noqa: E402
 
-FIXTURE = str(Path(__file__).parent / "fixtures" / "asrs_sample.csv")
+_FIXTURE_CANDIDATES = (
+    ROOT / "asrs_sample.csv",
+    ROOT / "tests" / "fixtures" / "asrs_sample.csv",
+    ROOT / "fixtures" / "asrs_sample.csv",
+)
+FIXTURE = str(next(p for p in _FIXTURE_CANDIDATES if p.exists()))
 
 
 @pytest.fixture(scope="module")

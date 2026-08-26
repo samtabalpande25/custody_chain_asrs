@@ -22,7 +22,7 @@ import json
 import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from custody_chain import audit, certify, learn                    # noqa: E402
 from custody_chain.adapters import asrs                            # noqa: E402
@@ -81,7 +81,7 @@ def main() -> int:
             print(f"    ! {p}")
 
     # ---- ledger --------------------------------------------------------
-    led = Ledger()
+    led = Ledger(skill_classes=asrs.ASRS_SKILL_CLASSES)
     admitted = rejected = 0
     for ep in asrs.iter_admissible(episodes, reviewer=args.reviewer):
         try:
@@ -120,7 +120,8 @@ def main() -> int:
     out = pathlib.Path(args.out).with_name("asrs_bundle.json")
     out.write_text(json.dumps(bundle, indent=2, default=str))
     print(f"\nfit       {args.skill}: {n_skill} episode(s)")
-    print(f"certify   {rep}")
+    print("certify")
+    print(rep.summary() if hasattr(rep, "summary") else rep)
     print(f"bundle    {out}")
 
     print(
