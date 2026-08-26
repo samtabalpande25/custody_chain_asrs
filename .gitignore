@@ -1,0 +1,18 @@
+# Talk materials — keep local, never commit
+*.pptx
+*.ppt
+*.key
+
+# OS / Python
+.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+
+# Pipeline outputs
+data/
+*.jsonl
+asrs_bundle.json

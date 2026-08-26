@@ -1,0 +1,16 @@
+,Time,Place,Aircraft 1,Person 1,Events,,,Report 1
+ACN,Date,Locale Reference,Flight Phase,Function,Anomaly,Detector,Result,Narrative
+1900001,202401,ZZZ,Initial Approach,Captain,Airborne Conflict,Person Air Traffic Control,Flight Crew Executed Go Around / Missed Approach,"At 14:20 we were cleared for the visual approach to RWY 28R.
+At 14:23 TCAS issued an RA and we stopped the descent.
+At 14:25 we executed a go around as instructed by tower."
+1900002,202401,ZZZ,Taxi,First Officer,Ground Incursion Runway,Person Flight Crew,Air Traffic Control Issued New Clearance,"At 09:05 ground gave us taxi via Alpha to RWY 16L.
+At 09:07 we held short of the runway as the hold bars were lit.
+At 09:09 we continued after supervisor approval was relayed."
+1900003,202402,ZZZ,Cruise,Captain,Deviation - Altitude Overshoot,Automation Aircraft Other Automation,General None Reported / Taken,"At 31:10 the autopilot captured the wrong altitude.
+At 31:12 we rerouted the climb profile and advised center."
+1900004,202402,ZZZ,Landing,Captain,Aircraft Equipment Problem Less Severe,Person Maintenance,Flight Crew Diverted,"During the rollout an amber caution illuminated.
+We halted the turnoff and requested a tow."
+1900005,202403,ZZZ,Climb,Flight Attendant,Something Entirely Unmapped,,General None Reported / Taken,The cabin was secured and the service commenced normally.
+1900006,202403,ZZZ,Descent,Captain,Conflict NMAC,Person Flight Crew,Flight Crew Took Evasive Action,"At 22:40 we received a traffic alert.
+At 22:41 we stopped the descent and turned right.
+At 22:44 we proceeded on course."
