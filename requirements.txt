@@ -1,3 +1,4 @@
 # Optional. The stub reader (--model stub) needs none of these.
 anthropic>=0.40.0
 pytest>=7.0.0
+streamlit>=1.40.0
