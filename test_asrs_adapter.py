@@ -127,6 +127,21 @@ def test_review_alone_does_not_clear_flagged_uncertainty():
     assert any("uncertain" in p for p in extraction_problems(ep))
 
 
+def test_iter_admissible_reviewer_does_not_bypass_uncertainty():
+    """The gate that uses extraction_problems must ask it even after review.
+
+    A previous `elif` skipped the check whenever --reviewer was set, which
+    made review a rubber stamp. The helper test above is not enough: it
+    guarded the function, not the iterator that admits to the ledger.
+    """
+    eps, _ = asrs.convert(FIXTURE)
+    assert any(e.extraction.get("uncertain") for e in eps)
+    admitted = list(asrs.iter_admissible(eps, reviewer="test-reviewer"))
+    assert admitted == [], (
+        "unresolved uncertainty must still refuse, even with a reviewer"
+    )
+
+
 def test_resolved_and_reviewed_extraction_becomes_admissible():
     eps, _ = asrs.convert(FIXTURE)
     ep = next(e for e in eps
@@ -138,6 +153,24 @@ def test_resolved_and_reviewed_extraction_becomes_admissible():
             s.action = "hold"                # ...and classified the action
     mark_reviewed(ep, "test-reviewer")
     assert extraction_problems(ep) == []
+
+
+def test_iter_admissible_after_resolve_and_review():
+    """Review plus actually resolving the flags is what opens the gate."""
+    eps, _ = asrs.convert(FIXTURE)
+    for ep in eps:
+        if validate(ep, skill_classes=asrs.ASRS_SKILL_CLASSES):
+            continue
+        ep.extraction = dict(ep.extraction)
+        ep.extraction["uncertain"] = []
+        for s in ep.steps:
+            if s.action == "unclassified":
+                s.action = "hold"
+    admitted = list(asrs.iter_admissible(eps, reviewer="test-reviewer"))
+    assert {e.episode_id for e in admitted} == {
+        "ASRS-1900001", "ASRS-1900002", "ASRS-1900003",
+        "ASRS-1900004", "ASRS-1900006",
+    }
 
 
 def test_extraction_provenance_is_sealed_into_the_episode():

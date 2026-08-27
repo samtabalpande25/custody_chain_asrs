@@ -386,8 +386,10 @@ def iter_admissible(
     """Yield the episodes a ledger will actually accept.
 
     Passing ``reviewer`` marks each remaining extraction as human-reviewed and
-    re-seals it. Do that only if a human genuinely read them: the review flag
-    is the record of an amendment, and a false one is worse than none.
+    re-seals it. Review is necessary, not sufficient: unresolved uncertainty,
+    unclassified actions, and schema failures still refuse the record. Do that
+    only if a human genuinely read them — the review flag is an amendment, and
+    a false one is worse than none.
     """
     from ..extract import mark_reviewed
 
@@ -396,6 +398,6 @@ def iter_admissible(
             continue
         if reviewer:
             mark_reviewed(ep, reviewer)
-        elif extraction_problems(ep):
+        if extraction_problems(ep):
             continue
         yield ep

@@ -94,11 +94,21 @@ def main() -> int:
 
     print(f"\nledger\n  admitted {admitted}\n  refused  {rejected}")
     if not admitted:
-        print(
-            "\n  nothing admitted. This is the expected first-pass result:\n"
-            "  a model's reading of a log is a hypothesis until a human checks it.\n"
-            "  Review the extractions, then re-run with --reviewer YOUR_NAME."
-        )
+        if args.reviewer:
+            print(
+                "\n  nothing admitted. Review is necessary, not sufficient:\n"
+                "  --reviewer was set, but extraction_problems still refused\n"
+                "  every candidate (unresolved uncertainty, unclassified\n"
+                "  actions, missing evidence, or an undeclared skill class).\n"
+                "  Resolve those flags on the record; do not clear them by\n"
+                "  passing a name."
+            )
+        else:
+            print(
+                "\n  nothing admitted. This is the expected first-pass result:\n"
+                "  a model's reading of a log is a hypothesis until a human checks it.\n"
+                "  Review the extractions, then re-run with --reviewer YOUR_NAME."
+            )
         return 1
 
     path = led.save(args.out)

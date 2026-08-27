@@ -179,11 +179,24 @@ def anthropic_completion(model: str = "claude-sonnet-4-6") -> CompleteFn:
         import anthropic
 
         client = anthropic.Anthropic()
-        msg = client.messages.create(
-            model=model,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        try:
+            msg = client.messages.create(
+                model=model,
+                max_tokens=2000,
+                messages=[{"role": "user", "content": prompt}],
+            )
+        except anthropic.APIStatusError as exc:
+            body = getattr(exc, "body", None) or {}
+            err = body.get("error") if isinstance(body, dict) else None
+            detail = ""
+            if isinstance(err, dict):
+                detail = err.get("message") or ""
+            raise SystemExit(
+                f"Anthropic refused the request ({exc.status_code}).\n"
+                f"  {detail or exc}\n"
+                "  The adapter itself is fine. Use --model stub with no API key,\n"
+                "  or add credits at https://console.anthropic.com/settings/billing"
+            ) from None
         return "".join(b.text for b in msg.content if b.type == "text")
 
     return _complete

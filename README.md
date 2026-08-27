@@ -22,13 +22,13 @@ python3 run_asrs.py --csv asrs_sample.csv --model stub --out data/asrs_ledger.js
 
 Expected first result: **nothing admitted**. Unreviewed extractions are inadmissible on purpose.
 
-After a human has actually read the extractions:
+After a human has actually read the extractions **and resolved** flagged uncertainty / unclassified actions:
 
 ```bash
 python3 run_asrs.py --csv asrs_sample.csv --model stub --reviewer YOUR_NAME --out data/asrs_ledger.jsonl
 ```
 
-`--reviewer` records an amendment. Do not pass it just to make the pipeline succeed.
+`--reviewer` is necessary, not sufficient. It records an amendment; it does not clear `uncertain` items or rubber-stamp the ledger. Do not pass it just to make the pipeline succeed.
 
 ## Run with Claude (optional)
 
