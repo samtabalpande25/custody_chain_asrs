@@ -39,6 +39,15 @@ _FIELD = re.compile(r"^\s*([A-Za-z][A-Za-z0-9 ./\-]*?)\s*:\s*(.+?)\s*$")
 _NARR_START = re.compile(r"^\s*Narrative\s*:?\s*\d*\s*$", re.I)
 _SECTION = re.compile(r"^\s*(Synopsis|Callback|Narrative|ACN)\b", re.I)
 
+# Periods that end an abbreviation, not a sentence. ASRS prose is dense with them.
+_ABBREV = re.compile(
+    r"\b(?:Capt|F/?O|Mr|Mrs|Ms|Dr|Sgt|St|Ave|Inc|Co|Corp|Ltd|No|Nos|Approx|Alt"
+    r"|Ft|Hr|Hrs|Min|Sec|Max|Min|Est|Dept|Ops|Maint|Mx|Rwy|Twy|Apt|Intl|Nav"
+    r"|Freq|Alt|Amb|Temp|Qty|Vol|Ref|Fig|No|vs|etc|e\.g|i\.e|a\.m|p\.m|U\.S"
+    r"|[A-Z])\.",
+    re.I,
+)
+
 
 def _pages(path: Path) -> str:
     try:
@@ -49,13 +58,22 @@ def _pages(path: Path) -> str:
 
 
 def _unwrap(lines: list[str]) -> str:
-    """Join PDF hard-wraps back into flowing prose.
+    """Rebuild the reporter's sentences from the PDF's hard-wrapped lines.
 
-    The line breaks in a Report Set PDF are typography, not structure, so
-    keeping them would hand the reader a segmentation signal the reporter never
-    wrote.
+    Two different things look like a line break here. The wraps are typography
+    imposed by the page width, and keeping them would hand the reader a
+    segmentation signal the reporter never wrote. Sentence punctuation is the
+    opposite: the reporter typed it, and `_norm_text` in the adapter preserves
+    line breaks precisely because narrative structure is the only segmentation
+    a log carries. So wraps are joined and sentences are put back on their own
+    lines.
     """
-    return re.sub(r"\s+", " ", " ".join(lines)).strip()
+    flat = re.sub(r"\s+", " ", " ".join(lines)).strip()
+    if not flat:
+        return ""
+    guarded = _ABBREV.sub(lambda m: m.group(0).replace(".", "\x00"), flat)
+    parts = re.split(r"(?<=[.!?])\s+(?=[\"'(]?[A-Z0-9])", guarded)
+    return "\n".join(p.replace("\x00", ".").strip() for p in parts if p.strip())
 
 
 def _split_records(text: str) -> list[tuple[str, str]]:
