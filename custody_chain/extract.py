@@ -169,7 +169,8 @@ def rule_based_completion(prompt: str) -> str:
     return json.dumps({"steps": steps, "outcome": outcome, "uncertain": uncertain})
 
 
-def anthropic_completion(model: str = "claude-sonnet-4-6") -> CompleteFn:
+def anthropic_completion(model: str = "claude-sonnet-4-6",
+                         max_tokens: int = 16000) -> CompleteFn:
     """Build a completion function backed by the Anthropic API.
 
     Requires the `anthropic` package and an API key in the environment. Kept out
@@ -182,7 +183,7 @@ def anthropic_completion(model: str = "claude-sonnet-4-6") -> CompleteFn:
         try:
             msg = client.messages.create(
                 model=model,
-                max_tokens=2000,
+                max_tokens=max_tokens,
                 messages=[{"role": "user", "content": prompt}],
             )
         except anthropic.APIStatusError as exc:
@@ -197,6 +198,15 @@ def anthropic_completion(model: str = "claude-sonnet-4-6") -> CompleteFn:
                 "  The adapter itself is fine. Use --model stub with no API key,\n"
                 "  or add credits at https://console.anthropic.com/settings/billing"
             ) from None
+        # A truncated reply is a partial reading of the log. Salvaging it would
+        # seal a record that silently omits the end of the narrative.
+        if msg.stop_reason == "max_tokens":
+            raise SystemExit(
+                f"refusing a truncated extraction: the reply hit max_tokens "
+                f"({max_tokens}).\n"
+                "  A partial reading is not a record. Raise max_tokens for this\n"
+                "  model, or shorten the narrative before extraction."
+            )
         return "".join(b.text for b in msg.content if b.type == "text")
 
     return _complete
@@ -227,13 +237,21 @@ def extract_episode(
     parsed = _parse(complete_fn(prompt))
 
     steps = []
-    for s in parsed.get("steps", []):
+    for i, s in enumerate(parsed.get("steps", [])):
         mentions = s.get("evidence_mentioned") or []
+        # Real narratives often state no clock time. Ordinal position is the one
+        # ordering the record does support, so an absent t falls back to it
+        # rather than being invented.
+        raw_t = s.get("t")
+        try:
+            t = float(raw_t)
+        except (TypeError, ValueError):
+            t = float(i)
         steps.append(
             Step(
-                t=float(s.get("t", 0.0)),
-                observation=s.get("observation", {}),
-                action=s.get("action", "unclassified"),
+                t=t,
+                observation=s.get("observation") or {},
+                action=s.get("action") or "unclassified",
                 reward=0.0,      # extraction does not invent rewards
                 cost=0.0,
                 guardrail=s.get("guardrail"),
