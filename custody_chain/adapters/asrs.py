@@ -73,6 +73,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Iterator
 
+from ..evidence import corpus_summary, evidence_problems, relabel_episode
 from ..extract import CompleteFn, extract_episode, extraction_problems, rule_based_completion
 from ..schema import CustodyEpisode, Step, validate
 
@@ -328,8 +329,13 @@ def row_to_episode(
     }
     ep.extraction["collection_regime"] = "voluntary_immunised"
 
+    # ASRS is recollection, so most steps can be located in the text but not
+    # evidenced by anything outside it. require_citation stays off here.
+    relabel_episode(ep)
+
     problems = validate(ep, skill_classes=ASRS_SKILL_CLASSES)
     problems += extraction_problems(ep)
+    problems += evidence_problems(ep, require_citation=False)
     return ep, problems
 
 

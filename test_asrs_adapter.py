@@ -13,6 +13,11 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from custody_chain.adapters import asrs                       # noqa: E402
+from custody_chain.evidence import (                          # noqa: E402
+    EVIDENCE_REGIMES,
+    evidence_problems,
+    is_citation,
+)
 from custody_chain.extract import extraction_problems, mark_reviewed  # noqa: E402
 from custody_chain.schema import validate                     # noqa: E402
 
@@ -191,6 +196,31 @@ def test_local_model_without_weights_digest_is_flagged():
 def test_hosted_model_needs_no_weights_digest():
     eps, _ = asrs.convert(FIXTURE, model_name="claude-sonnet-4-6")
     assert not any("weights digest" in p for p in extraction_problems(eps[0]))
+
+
+# ------------------------------------------------------------- evidence
+def test_stub_reference_is_a_locator_not_a_citation(episodes):
+    """The stub writes a pointer to the sentence, unconditionally.
+
+    Treating that as evidence made validate's evidence check vacuous on every
+    dataset: a fabricated locator was discharging an evidentiary requirement.
+    """
+    ref = episodes[0].steps[0].evidence[0]
+    assert ref.startswith("src:")
+    assert not is_citation(ref)
+
+
+def test_citation_requirement_is_not_vacuous(episodes):
+    """Lax passes, strict names the steps. If both are 0, the check is asleep."""
+    lax = sum(len(evidence_problems(e, require_citation=False)) for e in episodes)
+    strict = sum(len(evidence_problems(e, require_citation=True)) for e in episodes)
+    assert lax == 0
+    assert strict > 0, "a corpus of recollection cannot satisfy the strict rule"
+
+
+def test_evidence_regime_is_recorded(episodes):
+    assert all(e.extraction["evidence_regime"] in EVIDENCE_REGIMES
+               for e in episodes)
 
 
 # ---------------------------------------------------------------- honesty

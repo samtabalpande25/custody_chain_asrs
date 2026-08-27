@@ -26,6 +26,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from custody_chain import audit, certify, learn                    # noqa: E402
 from custody_chain.adapters import asrs                            # noqa: E402
+from custody_chain.evidence import corpus_summary                  # noqa: E402
 from custody_chain.extract import anthropic_completion, rule_based_completion  # noqa: E402
 from custody_chain.ledger import Ledger                            # noqa: E402
 
@@ -74,6 +75,9 @@ def main() -> int:
     )
     print("\nextraction")
     print(stats.render())
+
+    print("\nevidence")
+    print(corpus_summary(episodes))
 
     if stats.problems:
         print("\n  sample problems:")
