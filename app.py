@@ -248,10 +248,14 @@ if len(led):
             f"<div class='sl'>{(ep.seal or '')[:4]}…{(ep.seal or '')[-4:]}</div></div>",
             unsafe_allow_html=True)
 else:
+    why = ("Review is necessary, not sufficient — a reviewer is set, but "
+           "unresolved uncertainty, unclassified actions, missing evidence, or "
+           "an undeclared skill class still refuse every candidate."
+           if reviewer else
+           "Nothing was admitted. That is the expected first pass — set a "
+           "reviewer in the sidebar once a human has read the extractions.")
     st.markdown(f"<div class='card'><div class='eid' style='color:{AMBER}'>"
-                "Ledger empty</div><div class='sl'>Nothing was admitted. That is "
-                "the expected first pass — set a reviewer in the sidebar once a "
-                "human has read the extractions.</div></div>",
+                f"Ledger empty</div><div class='sl'>{why}</div></div>",
                 unsafe_allow_html=True)
 
 st.write("")
@@ -307,8 +311,9 @@ with tabs[1]:
     st.markdown("<div class='eyebrow'>The demo moment</div>",
                 unsafe_allow_html=True)
     if not len(led):
-        st.markdown("<p class='lede'>Admit something first — set a reviewer in "
-                    "the sidebar.</p>", unsafe_allow_html=True)
+        st.markdown("<p class='lede'>Admit something first — the ledger is "
+                    "empty, and there is nothing sealed to tamper with.</p>",
+                    unsafe_allow_html=True)
     else:
         st.markdown("<p class='lede'>Change a sealed record after the fact. "
                     "Nothing else on this page is touched.</p>",
