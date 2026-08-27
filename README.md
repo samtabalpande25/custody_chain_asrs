@@ -48,6 +48,22 @@ Public, no account: https://asrs.arc.nasa.gov/search/database.html
 python3 run_asrs.py --csv path/to/asrs_export.csv --limit 200 --model stub
 ```
 
+### Report Set PDFs
+
+NASA also publishes topical [Report Sets](https://asrs.arc.nasa.gov/publications/reportsets.html)
+as PDFs — 50 analyst-screened records each. Convert them to the same CSV shape:
+
+```bash
+python3 -m pip install --user pypdf
+python3 asrs_pdf_to_csv.py acr_fatg.pdf flt_attendant.pdf -o data/asrs_real.csv
+python3 run_asrs.py --csv data/asrs_real.csv --model stub --skill clearance
+```
+
+The converter runs *outside* the seal: PDF text extraction is itself a reading,
+asserted rather than proven. Coded fields survive verbatim, which is what the
+coded/prose split depends on — but say a parser produced the CSV if you present
+numbers from this path.
+
 ## Tests
 
 ```bash

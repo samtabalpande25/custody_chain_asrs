@@ -3,6 +3,9 @@
 *.ppt
 *.key
 
+# NASA Report Set PDFs. Public domain, but re-downloadable — see README.
+*.pdf
+
 # OS / Python
 .DS_Store
 __pycache__/
